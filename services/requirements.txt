@@ -40,3 +40,5 @@ uvicorn==0.52.4
 uvloop==0.22.1
 watchfiles==1.2.0
 websockets==16.1.1
+prometheus-fastapi-instrumentator==8.1.0
+prometheus_client==0.26.0

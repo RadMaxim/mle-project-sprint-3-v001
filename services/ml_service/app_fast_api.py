@@ -11,12 +11,10 @@ instrumentator = Instrumentator()
 instrumentator.instrument(app).expose(app)
 
 main_app_predictions = Histogram(
-    # имя метрики
     "Sprint3_Histogram",
-    #описание метрики
     "Histogram of predictions",
-    #указаываем корзины для гистограммы
-    buckets=(1, 2, 4, 5,10, 20)
+    # Корзины: 1млн, 3млн, 5млн, 10млн, 15млн, 25млн, 50млн
+    buckets=(1_000_000, 3_000_000, 5_000_000, 10_000_000, 15_000_000, 25_000_000, 50_000_000)
 )
 
 main_app_counter_pos = Counter("Sprint3_Counter", "Count of positive predictions")
@@ -30,8 +28,13 @@ def get_prediction_for_item(user_id: int, model_params: PropertyPredictionInput)
     # Формируем словарь в том формате, который ожидает ваш FastApiHandler
     params = {"user_id": user_id, "model_params":clean_model_params}
     pred = app.handler.handle(params)
-    main_app_predictions.observe(pred)
-    if pred > 0:
+    prediction_value = pred.get("prediction", 0.0)
+    
+    # Записываем значение в гистограмму Prometheus
+    main_app_predictions.observe(prediction_value)
+    
+    # Логика для счетчика (если цена больше 0, увеличиваем счетчик)
+    if prediction_value > 0:
         main_app_counter_pos.inc()
-    # Передаем параметры в созданный ранее глобальный обработчик
+    
     return pred
