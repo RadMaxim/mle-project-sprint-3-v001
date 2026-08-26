@@ -151,13 +151,121 @@ curl -X 'POST' \
 ```
 
 ## 3. Docker compose для микросервиса и системы моониторинга
+## Запуск микросервиса и системы мониторинга
+
+Для запуска FastAPI-микросервиса и системы мониторинга необходимо перейти в корневую директорию проекта, где находится файл `docker-compose.yaml`:
 
 ```bash
-# команда перехода в нужную директорию
-
-# команда для запуска микросервиса в режиме docker compose
-
+cd ~/mle_projects/mle-project-sprint-3-v001
 ```
+
+Перед запуском необходимо убедиться, что в корне проекта находится файл `.env` со следующими переменными:
+
+```env
+PROMETHEUS_PORT=9090
+GRAFANA_PORT=3000
+GRAFANA_USER="admin"
+GRAFANA_PASS="grafana"
+APP_PORT=1702
+AUTHOR=Maxim
+```
+
+Для FastAPI-микросервиса также используется файл `services/.env`:
+
+```env
+APP_PORT=1702
+AUTHOR=Maxim
+```
+
+После настройки переменных окружения выполните сборку и запуск всех контейнеров:
+
+```bash
+docker compose up --build -d
+```
+
+Параметр `--build` выполняет сборку Docker-образа FastAPI-микросервиса, а `-d` запускает контейнеры в фоновом режиме.
+
+Проверить состояние запущенных контейнеров можно командой:
+
+```bash
+docker compose ps
+```
+
+В результате должны быть запущены три сервиса:
+
+* `main-app` — FastAPI-микросервис;
+* `prometheus` — сбор и хранение метрик;
+* `grafana` — визуализация метрик.
+
+После успешного запуска сервисы доступны по следующим адресам:
+
+```text
+FastAPI:          http://localhost:1702
+Swagger UI:       http://localhost:1702/docs
+Prometheus:       http://localhost:9090
+Grafana:          http://localhost:3000
+```
+
+Для входа в Grafana используются данные из файла `.env`:
+
+```text
+Логин:    admin
+Пароль:   grafana
+```
+
+### Просмотр логов
+
+Для просмотра логов FastAPI-микросервиса:
+
+```bash
+docker compose logs main-app
+```
+
+Для просмотра логов в режиме реального времени:
+
+```bash
+docker compose logs -f main-app
+```
+
+Для просмотра логов Prometheus:
+
+```bash
+docker compose logs prometheus
+```
+
+Для просмотра логов Grafana:
+
+```bash
+docker compose logs grafana
+```
+
+Для просмотра логов всех сервисов:
+
+```bash
+docker compose logs
+```
+
+### Остановка системы
+
+Для остановки всех контейнеров:
+
+```bash
+docker compose stop
+```
+
+Для остановки и удаления контейнеров:
+
+```bash
+docker compose down
+```
+
+После изменения исходного кода или `Dockerfile` рекомендуется повторно выполнить сборку:
+
+```bash
+docker compose down
+docker compose up --build -d
+```
+
 
 ### Пример curl-запроса к микросервису
 
